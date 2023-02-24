@@ -1,17 +1,17 @@
-import supertest from 'supertest';
-import { DataSource } from 'typeorm';
-import app from '../../app';
-import { AppDataSource } from '../../data-source';
-import { Movie } from '../../entities';
-import { iMovieRepo } from '../../interfaces';
-import { deleteRouteMock } from '../mocks';
+import supertest from "supertest";
+import { DataSource } from "typeorm";
+import app from "../../app";
+import { AppDataSource } from "../../data-source";
+import { Movie } from "../../entities";
+import { iMovieRepo } from "../../interfaces/movies.interfaces";
+import { deleteRouteMock } from "../mocks";
 
-describe('DELETE /movies', () => {
+describe("DELETE /movies", () => {
   let connection: DataSource;
 
   let deleteUrl: string;
-  const baseUrl: string = '/movies';
-  const deleteInvalidIDUrl: string = baseUrl + '/123456';
+  const baseUrl: string = "/movies";
+  const deleteInvalidIDUrl: string = baseUrl + "/123456";
 
   const movieRepo: iMovieRepo = AppDataSource.getRepository(Movie);
   let movieDelete: Movie;
@@ -34,7 +34,7 @@ describe('DELETE /movies', () => {
     await connection.destroy();
   });
 
-  it('Success: Must be able to delete a movie', async () => {
+  it("Success: Must be able to delete a movie", async () => {
     const response = await supertest(app).delete(deleteUrl);
 
     const expectResults = { status: 204 };
@@ -53,7 +53,7 @@ describe('DELETE /movies', () => {
 
     const expectResults = {
       status: 404,
-      bodyMessage: { message: 'Movie not found' },
+      bodyMessage: { message: "Movie not found" },
     };
 
     expect(response.status).toBe(expectResults.status);

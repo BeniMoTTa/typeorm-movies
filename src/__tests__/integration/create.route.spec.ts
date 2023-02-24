@@ -1,15 +1,15 @@
-import supertest from 'supertest';
-import { DataSource } from 'typeorm';
-import app from '../../app';
-import { AppDataSource } from '../../data-source';
-import { Movie } from '../../entities';
-import { iMovieRepo } from '../../interfaces';
-import { createRouteMock } from '../mocks';
+import supertest from "supertest";
+import { DataSource } from "typeorm";
+import app from "../../app";
+import { AppDataSource } from "../../data-source";
+import { Movie } from "../../entities";
+import { iMovieRepo } from "../../interfaces/movies.interfaces";
+import { createRouteMock } from "../mocks";
 
-describe('POST /movies', () => {
+describe("POST /movies", () => {
   let connection: DataSource;
 
-  const baseUrl: string = '/movies';
+  const baseUrl: string = "/movies";
   const movieRepo: iMovieRepo = AppDataSource.getRepository(Movie);
 
   beforeAll(async () => {
@@ -27,7 +27,7 @@ describe('POST /movies', () => {
     await connection.destroy();
   });
 
-  it('Success: Must be able to create a movie - Full body', async () => {
+  it("Success: Must be able to create a movie - Full body", async () => {
     const response = await supertest(app)
       .post(baseUrl)
       .send(createRouteMock.movieComplete);
@@ -78,7 +78,7 @@ describe('POST /movies', () => {
     );
   });
 
-  it('Error: Must not be able to create a movie - Name already exists', async () => {
+  it("Error: Must not be able to create a movie - Name already exists", async () => {
     await movieRepo.save(createRouteMock.movieUnique1);
 
     const response = await supertest(app)
@@ -87,7 +87,7 @@ describe('POST /movies', () => {
 
     const expectResults = {
       status: 409,
-      bodyMessage: { message: 'Movie already exists.' },
+      bodyMessage: { message: "Movie already exists." },
     };
 
     expect(response.status).toBe(expectResults.status);
@@ -98,7 +98,7 @@ describe('POST /movies', () => {
     expect(movies).toEqual(expect.arrayContaining([]));
   });
 
-  it('Error: Must not be able to create a movie - Invalid body', async () => {
+  it("Error: Must not be able to create a movie - Invalid body", async () => {
     const response = await supertest(app)
       .post(baseUrl)
       .send(createRouteMock.movieInvalidBody);
@@ -107,9 +107,9 @@ describe('POST /movies', () => {
       status: 400,
       bodyMessage: {
         message: {
-          price: ['Required'],
-          name: ['Expected string, received number'],
-          duration: ['Expected number, received string'],
+          price: ["Required"],
+          name: ["Expected string, received number"],
+          duration: ["Expected number, received string"],
         },
       },
     };
@@ -122,7 +122,7 @@ describe('POST /movies', () => {
     expect(movies).toEqual(expect.arrayContaining([]));
   });
 
-  it('Error: Must not be able to create a movie - Invalid body 2', async () => {
+  it("Error: Must not be able to create a movie - Invalid body 2", async () => {
     const response = await supertest(app)
       .post(baseUrl)
       .send(createRouteMock.movieInvalidBody2);
@@ -131,9 +131,9 @@ describe('POST /movies', () => {
       status: 400,
       bodyMessage: {
         message: {
-          duration: ['Number must be greater than 0'],
-          name: ['String must contain at most 50 character(s)'],
-          price: ['Expected integer, received float'],
+          duration: ["Number must be greater than 0"],
+          name: ["String must contain at most 50 character(s)"],
+          price: ["Expected integer, received float"],
         },
       },
     };
