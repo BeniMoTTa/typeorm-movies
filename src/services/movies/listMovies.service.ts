@@ -1,3 +1,4 @@
+import { count } from "console";
 import { AppDataSource } from "../../data-source";
 import { Movie } from "../../entities";
 import {
@@ -18,8 +19,13 @@ export const listMoviesService = async (payload: any): Promise<IPagination> => {
       ? Number(payload.perPage)
       : 5 || 5;
 
-  const sort: any = payload.sort;
-  const order: any = payload.order;
+  const sort: "id" | "duration" | "price" =
+    (payload.sort !== "duration" && payload.sort !== "price"
+      ? "id"
+      : payload.sort) || "id";
+
+  const order: any =
+    (payload.sort === undefined ? "ASC" : payload.order) || "ASC";
 
   let prevPage: string | null =
     page === 1
@@ -33,50 +39,40 @@ export const listMoviesService = async (payload: any): Promise<IPagination> => {
 
   let findMovies: MovieAllReturn;
 
-  if (!sort) {
+  if (sort === "duration") {
     findMovies = await moviesRepository.find({
       take: perPage,
       skip: perPage * (page - 1),
       order: {
-        id: "ASC",
+        duration: order,
+      },
+    });
+  } else if (sort === "price") {
+    findMovies = await moviesRepository.find({
+      take: perPage,
+      skip: perPage * (page - 1),
+      order: {
+        price: order,
+      },
+    });
+  } else {
+    findMovies = await moviesRepository.find({
+      take: perPage,
+      skip: perPage * (page - 1),
+      order: {
+        id: order,
       },
     });
   }
-  if (sort && !order) {
-    if (sort == "duration") {
-      findMovies = await moviesRepository.find({
-        take: perPage,
-        skip: perPage * (page - 1),
-        order: {
-          duration: order,
-        },
-      });
-    } else if (sort == "price") {
-      findMovies = await moviesRepository.find({
-        take: perPage,
-        skip: perPage * (page - 1),
-        order: {
-          price: order,
-        },
-      });
-    }
-  }
-  findMovies = await moviesRepository.find({
-    take: perPage,
-    skip: perPage * (page - 1),
-    order: {
-      id: "ASC" || "DESC",
-    },
-  });
 
   const movies = returnAllMovies.parse(findMovies);
 
-  const pagination: IPagination = {
+  const pages: IPagination = {
     prevPage: prevPage,
     nextPage: nextPage,
     count: countMovies,
     data: movies,
   };
 
-  return pagination;
+  return pages;
 };
